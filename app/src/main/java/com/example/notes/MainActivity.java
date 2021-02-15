@@ -51,9 +51,12 @@ public class MainActivity extends AppCompatActivity {
                     //so copy the offline database state to online database state
                     SyncNotes();
                 } else
-                    Toast.makeText(this, "Please Connect", Toast.LENGTH_SHORT).show();
+                    chooseOfforOnlineNote();
             }
-            chooseOfforOnlineNote();
+            else {
+                chooseOfforOnlineNote();
+            }
+
         }
 
 
@@ -68,7 +71,23 @@ public class MainActivity extends AppCompatActivity {
                     //copy added note from offline database to online database
                     for (Note n : (ArrayList<Note>) NoteDatabase.getInstance(MainActivity.this).noteDao().getNotes()) {
                         if (!n.getUploadedState()) {
-                            addNotesOnline(n.getTitle(), n.getBody());
+                            AddNoteRequest addNoteRequest = new AddNoteRequest();
+                            addNoteRequest.setTitle(n.getTitle());
+                            addNoteRequest.setBody(n.getBody());
+                            OnlineMethod.getConnect().addNotes(SharedPref.getToken(), addNoteRequest).enqueue(new Callback<StateResponse>() {
+                                @Override
+                                public void onResponse(Call<StateResponse> call, Response<StateResponse> response) {
+                                    n.setUploadedState(true);
+                                    NoteDatabase.getInstance(MainActivity.this).noteDao().updateNote(n);
+                                 //   addNotesOnline(n.getTitle(), n.getBody());
+                                }
+
+                                @Override
+                                public void onFailure(Call<StateResponse> call, Throwable t) {
+
+                                }
+                            });
+
                         }
                     }
                     //edit note that changed in offline database to change it in online database too
@@ -95,10 +114,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (notFound)
                         {    deleteOnline(i.getId());
-                             }
+                        }
                     }
 
                 }
+                chooseOfforOnlineNote();
             }
 
             @Override
@@ -106,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
     //the method display current state offline notes but first time open app it's copy the online notes to the offline note
@@ -132,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             } else
                 Toast.makeText(this, "Please Connect Internet to Sync", Toast.LENGTH_SHORT).show();
         } else {
-                displayOfflineNotes((ArrayList<Note>) NoteDatabase.getInstance(MainActivity.this).noteDao().getNotes());
+            displayOfflineNotes((ArrayList<Note>) NoteDatabase.getInstance(MainActivity.this).noteDao().getNotes());
         }
     }
     //the offline delete done in NotesAdapter
@@ -198,11 +219,13 @@ public class MainActivity extends AppCompatActivity {
                     OnlineMethod.getConnect().getNotes(SharedPref.getToken()).enqueue(new Callback<NotesResponse>() {
                         @Override
                         public void onResponse(Call<NotesResponse> call, Response<NotesResponse> response) {
-                         if(response.body().isState()){
-                             addNoteOffline(title, note, true,response.body().getNotes().get(
-                                     response.body().getNotes().size()-1
-                             ).getId());
-                         }
+                            if(response.body().isState()){
+
+                                addNoteOffline(title, note, true,response.body().getNotes().get(
+                                        response.body().getNotes().size()-1
+                                ).getId());
+
+                            }
 
                         }
 
@@ -234,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(notesAdapter);
 
     }
-//    private void displayOnlineNotes() {
+    //    private void displayOnlineNotes() {
 //        OnlineMethod.getConnect().getNotes(SharedPref.getToken()).enqueue(new Callback<NotesResponse>() {
 //            @Override
 //            public void onResponse(Call<NotesResponse> call, Response<NotesResponse> response) {
