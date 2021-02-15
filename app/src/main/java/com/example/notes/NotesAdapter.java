@@ -168,8 +168,10 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
             }
         });
     }
-private void editOffline(Note note,String tilteBt, String bodyBt,int position,BottomSheetDialog bt){
-        NoteDatabase.getInstance(mContext).noteDao().updateNote(note);
+private void editOffline(Note notePara,String tilteBt, String bodyBt,int position,BottomSheetDialog bt){
+        notePara.setTitle(tilteBt);
+        notePara.setBody(bodyBt);
+        NoteDatabase.getInstance(mContext).noteDao().updateNote(notePara);
     bt.dismiss();
     listdata.get(position).setTitle(tilteBt);//"titleBt.getText().toString()"
     listdata.get(position).setBody(bodyBt);//noteBt.getText().toString()
