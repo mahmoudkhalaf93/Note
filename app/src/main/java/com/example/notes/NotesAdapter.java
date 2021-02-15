@@ -126,10 +126,10 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
                 //   Toast.makeText(mContext, ""+myListData.getId()+" . "+SharedPref.getToken(), Toast.LENGTH_SHORT).show();
                 if (response.body().isState()) {
                     Toast.makeText(mContext, "note deleted", Toast.LENGTH_SHORT).show();
-                    listdata.remove(position);
+                    //listdata.remove(position);
                     // recycler.removeViewAt(position);
                     //  notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, listdata.size());
+                 //   notifyItemRangeChanged(position, listdata.size());
                 } else {
                     Toast.makeText(mContext, "there is problem" + response.body().isState(), Toast.LENGTH_SHORT).show();
                 }
@@ -146,6 +146,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         Note note = notePara;
         NoteDatabase.getInstance(mContext).noteDao().deleteNote(note);
         listdata.remove(position);
+        notifyItemRemoved(position);
         notifyItemRangeChanged(position, listdata.size());
     }
 
@@ -155,8 +156,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
             public void onResponse(Call<StateResponse> call, Response<StateResponse> response) {
                 if (response.body().isState()) {
                     bt.dismiss();
-                    listdata.get(position).setTitle(tilteBt);//"titleBt.getText().toString()"
-                    listdata.get(position).setBody(bodyBt);//noteBt.getText().toString()
+                    //listdata.get(position).setTitle(tilteBt);//"titleBt.getText().toString()"
+                    //listdata.get(position).setBody(bodyBt);//noteBt.getText().toString()
                     notifyItemRangeChanged(position, listdata.size());
                 } else
                     Toast.makeText(mContext, "there is error", Toast.LENGTH_SHORT).show();
@@ -168,16 +169,16 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
             }
         });
     }
-private void editOffline(Note notePara,String tilteBt, String bodyBt,int position,BottomSheetDialog bt){
+    private void editOffline(Note notePara,String tilteBt, String bodyBt,int position,BottomSheetDialog bt){
         notePara.setTitle(tilteBt);
         notePara.setBody(bodyBt);
         NoteDatabase.getInstance(mContext).noteDao().updateNote(notePara);
-    bt.dismiss();
-    listdata.get(position).setTitle(tilteBt);//"titleBt.getText().toString()"
-    listdata.get(position).setBody(bodyBt);//noteBt.getText().toString()
-    notifyItemRangeChanged(position, listdata.size());
+        bt.dismiss();
+        listdata.get(position).setTitle(tilteBt);//"titleBt.getText().toString()"
+        listdata.get(position).setBody(bodyBt);//noteBt.getText().toString()
+        notifyItemRangeChanged(position, listdata.size());
 
-}
+    }
 
 
     private boolean isNetworkConnected() {
